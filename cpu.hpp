@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstring>
 #include <array>
+#include <iostream>
 
 constexpr uint8_t ADD = 0x86;
 constexpr uint8_t ADC = 0x8E;
@@ -94,6 +95,7 @@ public:
 private:
     void handlePrefixedOpcode(uint8_t prefix, uint8_t opcode);
     void handleOpcode(uint8_t opcode);
+    void halt();
 
     // Helper functions for arithmetic operations
     void addA(uint8_t value);
@@ -117,6 +119,27 @@ private:
 
     void dec(uint8_t& reg);
     uint8_t dec_(uint8_t value);
+
+    void ld(uint16_t& reg);
+    void ldHL();
+
+    void exx();
+
+    void jp();
+    void condJP(uint8_t opcode);
+    
+    void jr();
+    void condJR(uint8_t opcode);
+
+    void call();
+    void condCall(uint8_t opcode);
+
+    void condRet(uint8_t opcode);
+    void retin();
+
+    void setCarry();
+
+    void daa();
 
     bool checkCondition(uint8_t condition);
 
@@ -166,6 +189,6 @@ inline uint16_t Z80::getAF() const { return af; }
 inline uint16_t Z80::getBC() const { return bc; }
 inline uint16_t Z80::getHL() const { return hl; }
 inline uint16_t Z80::getIX() const { return ix; }
-inline uint16_t Z80::getIY() const { return ix; }
+inline uint16_t Z80::getIY() const { return iy; }
 inline uint16_t Z80::getPC() const { return pc; }
 inline uint16_t Z80::getSP() const { return sp; }
