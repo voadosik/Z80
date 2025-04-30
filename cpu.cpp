@@ -1,5 +1,7 @@
 #include "cpu.hpp"
-
+/*
+FIX DAA
+*/
 
 Z80::Z80() { reset(); }
 
@@ -33,6 +35,7 @@ void Z80::step() {
 }
 
 void Z80::setIX(uint16_t value) { ix = value; }
+
 
 
 void Z80::handlePrefixedOpcode(uint8_t prefix, uint8_t opcode) {
@@ -75,7 +78,7 @@ void Z80::handlePrefixedOpcode(uint8_t prefix, uint8_t opcode) {
 
 void Z80::handleOpcode(uint8_t opcode) {
     switch (opcode) {
-        // ADD A, r
+    // ADD A, r
     case 0x80: addA(b); break;
     case 0x81: addA(c); break;
     case 0x82: addA(d); break;
@@ -86,7 +89,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0x87: addA(a); break;
     case 0xC6: addA(readByte(pc++)); break; // ADD A, n
 
-        // ADC A, s
+    // ADC A, s
     case 0x88: adcA(b); break;
     case 0x89: adcA(c); break;
     case 0x8A: adcA(d); break;
@@ -97,7 +100,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0x8F: adcA(a); break;
     case 0xCE: adcA(readByte(pc++)); break; // ADC A, n
 
-        // SUB s
+    // SUB s
     case 0x90: sub(b); break;
     case 0x91: sub(c); break;
     case 0x92: sub(d); break;
@@ -108,7 +111,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0x97: sub(a); break;
     case 0xD6: sub(readByte(pc++)); break; // SUB n
 
-        // SBC A, s
+    // SBC A, s
     case 0x98: sbcA(b); break;
     case 0x99: sbcA(c); break;
     case 0x9A: sbcA(d); break;
@@ -119,7 +122,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0x9F: sbcA(a); break;
     case 0xDE: sbcA(readByte(pc++)); break; // SBC A, n
 
-        // AND s
+    // AND s
     case 0xA0: andA(b); break;
     case 0xA1: andA(c); break;
     case 0xA2: andA(d); break;
@@ -130,7 +133,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0xA7: andA(a); break;
     case 0xE6: andA(readByte(pc++)); break; // AND n
 
-        // OR s
+    // OR s
     case 0xB0: orA(b); break;
     case 0xB1: orA(c); break;
     case 0xB2: orA(d); break;
@@ -141,7 +144,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0xB7: orA(a); break;
     case 0xF6: orA(readByte(pc++)); break; // OR n
 
-        // XOR s
+    // XOR s
     case 0xA8: xorA(b); break;
     case 0xA9: xorA(c); break;
     case 0xAA: xorA(d); break;
@@ -152,7 +155,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0xAF: xorA(a); break;
     case 0xEE: xorA(readByte(pc++)); break; // XOR n
 
-        // CP s
+    // CP s
     case 0xB8: cp(b); break;
     case 0xB9: cp(c); break;
     case 0xBA: cp(d); break;
@@ -163,7 +166,7 @@ void Z80::handleOpcode(uint8_t opcode) {
     case 0xBF: cp(a); break;
     case 0xFE: cp(readByte(pc++)); break; // CP n
 
-        // INC r
+    // INC r
     case 0x04: inc(b); break;
     case 0x0C: inc(c); break;
     case 0x14: inc(d); break;
@@ -177,7 +180,7 @@ void Z80::handleOpcode(uint8_t opcode) {
         break;
     }
 
-             // DEC m
+    // DEC m
     case 0x05: dec(b); break;
     case 0x0D: dec(c); break;
     case 0x15: dec(d); break;
@@ -191,126 +194,103 @@ void Z80::handleOpcode(uint8_t opcode) {
         break;
     }
 
-             // 8-bit Loads
-    case 0x36: { // LD (HL),n
-        writeByte(hl, readByte(pc++));
-        break;
-    }
-
-             // 16-bit Loads
-    case 0x01: // LD BC,nn
-        bc = readByte(pc++) | (readByte(pc++) << 8);
-        break;
-    case 0x11: // LD DE,nn
-        de = readByte(pc++) | (readByte(pc++) << 8);
-        break;
-    case 0x21: // LD HL,nn
-        hl = readByte(pc++) | (readByte(pc++) << 8);
-        break;
-    case 0x31: // LD SP,nn
-        sp = readByte(pc++) | (readByte(pc++) << 8);
+    // 8-bit Loads
+    // LD (HL),n
+    case 0x36: 
+        ldHL();
         break;
 
-        // Exchange instructions
-    case 0xEB: { // EX DE,HL
+    // 16-bit Loads
+    
+    // LD BC,nn
+    case 0x01:
+        ld(bc);
+        break;
+    
+    // LD DE,nn
+    case 0x11: 
+       ld(de);
+        break;
+
+    // LD HL,nn    
+    case 0x21: 
+        ld(hl);
+        break;
+
+    // LD SP,nn
+    case 0x31: 
+        ld(sp);
+        break;
+
+    // Exchange instructions
+    // EX DE,HL
+    case 0xEB: { 
         std::swap(de, hl);
         break;
     }
-    case 0x08: { // EX AF,AF'
+    // EX AF,AF'
+    case 0x08: { 
         std::swap(af, af_prime);
         break;
     }
-    case 0xD9: { // EXX
-        std::swap(bc, bc_prime);
-        std::swap(de, de_prime);
-        std::swap(hl, hl_prime);
+    // EXX
+    case 0xD9: { 
+        exx();
         break;
     }
-             // JP nn
+    // JP nn
     case 0xC3: {
-        uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
-        pc = addr;
+        jp();
         break;
     }
 
-             // JP cc,nn
+    // JP cc,nn
     case 0xC2: case 0xCA: case 0xD2: case 0xDA:
     case 0xE2: case 0xEA: case 0xF2: case 0xFA: {
-        uint8_t condition = (opcode >> 3) & 0x07;
-        uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
-        if (checkCondition(condition)) {
-            pc = addr;
-        }
-        else {
-            pc += 2;
-        }
+        condJP(opcode);
         break;
     }
 
-             // JR e
+    // JR e
     case 0x18: {
-        int8_t offset = readByte(pc++);
-        pc += offset;
+        jr();
         break;
     }
 
-             // JR cc,e
+    // JR cc,e
     case 0x20: case 0x28: case 0x30: case 0x38: {
-        uint8_t condition = (opcode >> 3) & 0x03;
-        int8_t offset = readByte(pc++);
-        if (checkCondition(condition)) {
-            pc += offset;
-        }
+        condJR(opcode);
         break;
     }
 
-             // CALL nn
+    // CALL nn
     case 0xCD: {
-        uint16_t addr = readByte(pc++) | (readByte(pc++) << 8);
-        push(pc);  // Return address
-        pc = addr;
+        call();
         break;
     }
 
-             // CALL cc,nn
+    // CALL cc,nn
     case 0xC4: case 0xCC: case 0xD4: case 0xDC:
     case 0xE4: case 0xEC: case 0xF4: case 0xFC: {
-        uint8_t condition = (opcode >> 3) & 0x07;
-        uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
-        if (checkCondition(condition)) {
-            push(pc + 3);
-            pc = addr;
-        }
-        else {
-            pc += 2;
-        }
+        condCall(opcode);
         break;
     }
 
-             // RET
+    // RET
     case 0xC9:
         pc = pop();
         break;
 
-        // RET cc
+    // RET cc
     case 0xC0: case 0xC8: case 0xD0: case 0xD8:
     case 0xE0: case 0xE8: case 0xF0: case 0xF8: {
-        uint8_t condition = (opcode >> 3) & 0x07;
-        if (checkCondition(condition)) {
-            pc = pop();
-        }
+        condRet(opcode);
         break;
     }
 
-             // RETI/RETN (simplified)
+    // RETI/RETN 
     case 0xED: {
-        uint8_t next = readByte(pc++);
-        if (next == 0x4D) {  // RETI
-            pc = pop();
-        }
-        else if (next == 0x45) {  // RETN
-            pc = pop();
-        }
+        retin();
         break;
     }
 
@@ -321,6 +301,19 @@ void Z80::handleOpcode(uint8_t opcode) {
         de = pop();
         break;
 
+    case 0x76: //HALT
+        halt();
+        return;
+
+    case 0x37: // SCF 
+        setCarry();
+        break;
+
+
+    case 0x27:
+        daa();
+        break;
+
     default:
         if ((opcode & 0xC0) == 0x40) {
             handleLd(opcode);
@@ -329,6 +322,9 @@ void Z80::handleOpcode(uint8_t opcode) {
     }
 }
 
+void Z80::halt() {
+    return;
+}
 
 
 void Z80::addA(uint8_t value) {
@@ -406,6 +402,84 @@ uint8_t Z80::dec_(uint8_t value) {
     return res;
 }
 
+void Z80::ld(uint16_t& reg) {
+    reg = readByte(pc++) | (readByte(pc++) << 8);
+}
+
+void Z80::exx() {
+    std::swap(bc, bc_prime);
+    std::swap(de, de_prime);
+    std::swap(hl, hl_prime);
+}
+
+void Z80::ldHL() {
+    writeByte(hl, readByte(pc++));
+}
+
+void Z80::jp() {
+    uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
+    pc = addr;
+}
+
+void Z80::condJP(uint8_t opcode) {
+    uint8_t condition = (opcode >> 3) & 0x07;
+    uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
+    if (checkCondition(condition)) {
+        pc = addr;
+    }
+    else {
+        pc += 2;
+    }
+}
+
+void Z80::jr() {
+    int8_t offset = readByte(pc++);
+    pc += offset;
+}
+
+void Z80::condJR(uint8_t opcode) {
+    uint8_t condition = (opcode >> 3) & 0x03;
+    int8_t offset = readByte(pc);
+    if (checkCondition(condition)) {
+        pc += offset;
+    }
+}
+
+void Z80::call() {
+    uint16_t addr = readByte(pc++) | (readByte(pc++) << 8);
+    push(pc);  // Return address
+    pc = addr;
+}
+
+void Z80::condCall(uint8_t opcode) {
+    uint8_t condition = (opcode >> 3) & 0x07;
+    uint16_t addr = readByte(pc) | (readByte(pc + 1) << 8);
+    if (checkCondition(condition)) {
+        push(pc + 3);
+        pc = addr;
+    }
+    else {
+        pc += 2;
+    }
+}
+
+void Z80::condRet(uint8_t opcode) {
+    uint8_t condition = (opcode >> 3) & 0x07;
+    if (checkCondition(condition)) {
+        pc = pop();
+    }
+}
+
+void Z80::retin() {
+    uint8_t next = readByte(pc++);
+    if (next == 0x4D) {  // RETI
+        pc = pop();
+    }
+    else if (next == 0x45) {  // RETN
+        pc = pop();
+    }
+}
+
 
 bool Z80::checkCondition(uint8_t condition) {
     switch (condition) {
@@ -420,6 +494,8 @@ bool Z80::checkCondition(uint8_t condition) {
     default: return false;
     }
 }
+
+
 
 void Z80::push(uint16_t value) {
     writeByte(--sp, (value >> 8) & 0xFF); // High byte
@@ -485,11 +561,17 @@ void Z80::updateSZ(uint8_t value) {
 
 void Z80::updateFlagsIncDec(uint8_t res, uint8_t old, bool inc) {
     f &= ~(N_FLAG | Z_FLAG | S_FLAG | H_FLAG | PV_FLAG);
-    if (inc) f |= 0;
-    else f |= N_FLAG;
+
+    if (!inc) f |= N_FLAG;  
+    
     if (res == 0) f |= Z_FLAG;
+    
     if (res & 0x80) f |= S_FLAG;
-    if ((old & 0x0F) == 0x0F && inc) f |= H_FLAG;
+    
+    //if ((old & 0x0F) == 0x0F && inc) f |= H_FLAG;
+    
+    if ((old & 0x0F) == 0x00 && !inc) f |= H_FLAG;
+    
     if ((old == 0x7F && inc) || (old == 0x80 && !inc)) f |= PV_FLAG;
 }
 
@@ -591,4 +673,55 @@ void Z80::handleIndexedLd(uint8_t prefix, uint8_t opcode) {
     else if (dest == 6) { // LD (IX/IY+d),r
         writeByte(addr, getReg(src));
     }
+}
+
+void Z80::setCarry() {
+    f = (f | C_FLAG) & ~(N_FLAG | H_FLAG);
+}
+
+void Z80::daa() {
+    uint8_t a = this->a;
+    uint8_t cf = (f & C_FLAG) ? 1 : 0;
+    uint8_t hf = (f & H_FLAG) ? 1 : 0;
+    uint8_t nf = (f & N_FLAG) ? 1 : 0;
+    uint8_t lo = a & 0x0F;
+    uint8_t hi = a >> 4;
+    uint8_t diff = 0;
+    uint8_t carry = cf;
+
+    if (nf) {
+        // Subtraction
+        if (hf || lo > 9) {
+            diff += 0x06;
+        }
+        if (cf || hi > 9) {
+            diff += 0x60;
+        }
+        a -= diff;
+    }
+    else {
+        // Addition
+        if (hf || lo > 9) {
+            diff += 0x06;
+        }
+        if (cf || hi > 9 || (hi >= 9 && lo > 9)) {
+            diff += 0x60;
+            carry = 1;
+        }
+        a += diff;
+        if (a & 0x100) {
+            carry = 1;
+        }
+        a &= 0xFF;
+    }
+
+    // Update flags
+    f = (nf ? N_FLAG : 0) |
+        (a == 0 ? Z_FLAG : 0) |
+        (a & 0x80 ? S_FLAG : 0) |
+        (carry ? C_FLAG : 0) |
+        (parityEven(a) ? PV_FLAG : 0) |
+        ((diff & 0x06) ? H_FLAG : 0);
+
+    this->a = a;
 }
