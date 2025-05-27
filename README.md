@@ -1,5 +1,22 @@
 # Z80 CPU Emulator 
 
+## Build instructions
+
+### Windows (MSVC 2022)
+1. Open the 'Z80.vcxproj` project in Visual Studio 2022.
+2. Ensure you have C++17 installed and enabled in project settings.
+3. Build the solution (Ctrl+Shift+B).
+4. Run the generated executable, to see the results of the tests.
+
+### Linux (GCC)
+1. Ensure you have GCC compiler(tested on version GCC 14.2).
+2. Go to the src folder.
+3. Using command line execute 'make', which will build the project.
+4. Afterwards execute 'make start' to run the program tests.
+5. To remove the executable type 'make clean'.
+
+
+
 ## Project Overview:
 This project is an implementation of a core subset of Zilog Z80 CPU instructions. 
 It emulates essential functionalities including data transfer, arithmetic, logical operations,
